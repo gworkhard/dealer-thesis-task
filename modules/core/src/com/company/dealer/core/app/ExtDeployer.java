@@ -313,7 +313,6 @@ public class ExtDeployer extends AbstractDeployer implements ExtDeployerMBean {
                                 break;
                             case "BankOperator":
                                 procRole.setRole(roleBankOperator);
-//                                procRole.setMultiUser(false);
                                 procRole.setSortOrder(2);
                                 break;
                             case "Master":
