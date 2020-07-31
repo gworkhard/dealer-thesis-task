@@ -1,6 +1,8 @@
 package com.company.dealer.web.carbuyrequest;
 
 import com.haulmont.cuba.gui.components.Action;
+import com.haulmont.cuba.gui.components.Button;
+import com.haulmont.cuba.web.gui.components.WebButton;
 import com.haulmont.thesis.web.actions.PrintReportAction;
 import com.haulmont.thesis.web.ui.basicdoc.editor.AbstractDocEditor;
 import com.haulmont.workflow.core.app.WfUtils;
@@ -28,11 +30,19 @@ public class CarBuyRequestEdit extends AbstractDocEditor<CarBuyRequest> {
     public void setItem(Entity item) {
         super.setItem(item);
         printButton.addAction(new PrintReportAction("printExecutionList", this, "printDocExecutionListReportName"));
-        for (Action action : getActions()) {
-            if (!getItem().getIsPaid() && action.getId().equals("proc_20200730_160604433.Проверено")) {
-                action.setEnabled(false);
+        WebButton button = (WebButton) getComponentById("RequestCheck.Provereno_BTN");
+        if (null != button) {
+            button.getAction().setEnabled(getItem().getIsPaid());
+        }
+    }
+
+    private Component getComponentById(String id) {
+        for (Component c : getComponents()) {
+            if ( id.equals(c.getId())) { // todo Must be another way to do that
+                return c;
             }
         }
+        return null;
     }
 
     @Override
