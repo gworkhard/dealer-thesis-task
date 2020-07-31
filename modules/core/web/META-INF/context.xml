@@ -1,0 +1,27 @@
+<!--
+  ~ Copyright (c) 2018 Haulmont Technology Ltd. All Rights Reserved.
+  ~ Haulmont Technology proprietary and confidential.
+  ~ Use is subject to license terms.
+  -->
+
+<Context>
+
+    <!-- Database connection -->
+    <Resource
+      name="jdbc/CubaDS"
+      type="javax.sql.DataSource"
+      maxTotal="20"
+      maxIdle="2"
+      maxWaitMillis="5000"
+      driverClassName="org.postgresql.Driver"
+      url="jdbc:postgresql://localhost/dealer"
+      username="cuba"
+      password="cuba"/>
+
+    <!-- Switch off session serialization -->
+    <Manager className="org.apache.catalina.session.PersistentManager" debug="0" distributable="false"
+             saveOnRestart="false">
+        <Store className="org.apache.catalina.session.FileStore"/>
+    </Manager>
+
+</Context>

@@ -1,0 +1,7 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<window xmlns="http://schemas.haulmont.com/cuba/window.xsd"
+        class="com.company.dealer.web.companybrowse.ExtCompanyBrowser"
+        extends="com/haulmont/thesis/web/ui/company/company-browse.xml"
+        messagesPack="com.company.dealer.web.companybrowse">
+    <layout/>
+</window>

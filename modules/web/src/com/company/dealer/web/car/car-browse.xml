@@ -1,0 +1,111 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<window xmlns="http://schemas.haulmont.com/cuba/window.xsd"
+        caption="msg://browseCaption"
+        class="com.company.dealer.web.car.CarBrowse"
+        lookupComponent="cardsTable"
+        messagesPack="com.company.dealer.web.car">
+    <dsContext>
+        <groupDatasource id="cardsDs"
+                         class="com.company.dealer.entity.Car"
+                         datasourceClass="com.company.dealer.web.car.CarBrowseDatasource"
+                         view="browse">
+            <query>
+                <![CDATA[select distinct e from dealer$Car e]]>
+            </query>
+        </groupDatasource>
+    </dsContext>
+    <layout expand="split"
+            spacing="true">
+        <hbox height="AUTO"
+              spacing="true"
+              width="100%">
+            <filter id="genericFilter"
+                    applyTo="cardsTable"
+                    datasource="cardsDs"
+                    stylename="edit-area">
+                <properties exclude="parentCardAccess|procFamily|deletedBy|id|jbpmProcessId|deleteTs|category|updatedBy|updateTs|createTs|createdBy|signatures"
+                            include=".*"/>
+            </filter>
+        </hbox>
+        <split id="split"
+               height="100%"
+               orientation="vertical"
+               pos="60"
+               width="100%">
+            <vbox id="table-panel"
+                  expand="cardsTable"
+                  height="100%"
+                  spacing="true">
+                <groupTable id="cardsTable"
+                            height="100%"
+                            presentations="true"
+                            width="100%">
+                    <actions>
+                        <action id="create"/>
+                        <action id="edit"/>
+                        <action id="remove"/>
+                        <action id="excel"/>
+                        <action id="refresh"/>
+                    </actions>
+                    <columns>
+                        <column id="hasAttachments"
+                                caption="msg://com.haulmont.workflow.core.entity/Card.hasAttachments"
+                                width="30">
+                            <formatter class="com.haulmont.thesis.gui.components.formatter.HasAttachmentsFormatter"/>
+                        </column>
+                        <column id="important"
+                                caption="msg://com.haulmont.thesis.core.entity/TsCard.important"
+                                width="30">
+                            <formatter class="com.haulmont.thesis.gui.components.formatter.ImportantDocFormatter"/>
+                        </column>
+                        <column id="locState"
+                                caption="msg://com.haulmont.workflow.core.entity/Card.state"/>
+                        <column id="number"/>
+                        <column id="price"/>
+                        <column id="name"/>
+                        <column id="manufactureYear"/>
+                        <column id="carModel"/>
+                    </columns>
+                    <rows datasource="cardsDs"/>
+                    <rowsCount/>
+                    <buttonsPanel id="buttonsPanel"
+                                  alwaysVisible="true">
+                        <button id="createBtn"
+                                action="cardsTable.create"
+                                caption="msg://actions.Create"
+                                icon=""/>
+                        <button id="editBtn"
+                                action="cardsTable.edit"/>
+                        <button id="removeBtn"
+                                action="cardsTable.remove"/>
+                        <button id="excelBtn"
+                                action="cardsTable.excel"/>
+                        <runReportPopupButton id="print"
+                                              description="msg://print"
+                                              icon="icons/reports-print.png"/>
+                        <button id="refreshBtn"
+                                action="cardsTable.refresh"/>
+                        <button id="saveAsTemplateButton"
+                                icon="icons/save_as_template.png"/>
+                    </buttonsPanel>
+                </groupTable>
+            </vbox>
+            <tabSheet id="cardDetailsTabSheet"
+                      height="100%"
+                      width="100%">
+                <tab id="resolutionsTab"
+                     caption="msg://resolutions">
+                    <iframe id="resolutionsFrame"
+                            height="100%"
+                            screen="resolutionsFrame"/>
+                </tab>
+                <tab id="hierarchyTab"
+                     caption="msg://hierarchy">
+                    <iframe id="cardTreeFrame"
+                            height="100%"
+                            screen="cardTreeFrame"/>
+                </tab>
+            </tabSheet>
+        </split>
+    </layout>
+</window>

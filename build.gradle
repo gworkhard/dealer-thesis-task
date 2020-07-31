@@ -1,0 +1,257 @@
+
+allprojects {
+    ext.artifactGroup = 'com.company.dealer'
+    ext.artifactVersion = '0.1'
+    ext.isSnapshot = true
+    ext.tomcatDir = "$rootDir/deploy/tomcat"
+    ext.copyright = '''Copyright (c) ${YEAR} ${PACKAGE_NAME}''' // Copyright Notice for IDEA project
+    ext.classComment = '''/**
+ * @author ${USER}
+ */'''
+    
+}
+
+project.configurations {
+    tomcat
+}
+
+project.dependencies {
+    tomcat(group: 'org.apache.tomcat', name: 'tomcat', version: '8.5.32', ext: 'zip')
+}
+
+buildscript {
+    ext.thesisVersion = '4.4.2'
+    ext.cubaVersion = '5.9.13'
+    ext.autoConfigurePortal = true
+    ext.autoConfigureMobileRest = true
+    repositories {
+        mavenLocal()
+        maven {
+            url 'http://deprecated-repo.haulmont.com:8587/nexus/content/groups/work'
+            credentials {
+                username(rootProject.hasProperty('repoUser') ?
+                        rootProject['repoUser'] : 'external')
+                password(rootProject.hasProperty('repoPass') ?
+                        rootProject['repoPass'] : 'aiva33n8')
+            }
+        }
+    }
+    dependencies {
+        classpath "com.haulmont.gradle:cuba-plugin:$cubaVersion"
+        classpath "com.haulmont.thesis.gradle:thesis-plugin:$thesisVersion"
+    }
+}
+
+def globalModule = project(':dealer-global')
+def coreModule = project(':dealer-core')
+def guiModule = project(':dealer-gui')
+def webModule = project(':dealer-web')
+def portalModule = project(':dealer-portal')
+
+
+def postgres = 'org.postgresql:postgresql:42.2.2.jre7'
+def servletApi = 'org.apache.tomcat:servlet-api:6.0.20'
+
+def thesisWebToolkitGAV = [group: 'com.haulmont.thesis.toolkit', name: 'thesis-web-toolkit', version: thesisVersion]
+
+apply(plugin: 'idea')
+apply(plugin: 'cuba')
+apply(plugin: 'thesis')
+
+configure([globalModule, coreModule, guiModule, webModule, portalModule]) {
+    apply(plugin: 'java')
+    apply(plugin: 'maven')
+    apply(plugin: 'idea')
+    apply(plugin: 'cuba')
+    apply(plugin: 'groovy')
+
+    tasks.withType(JavaCompile) {
+        options.encoding = 'UTF-8'
+    }
+
+    sourceSets {
+        main {
+            groovy {
+                srcDir 'src'
+                exclude '**/appfolders/**/*.groovy'
+                exclude '**/process/**'
+                exclude '**/scripts/**'
+            }
+        }
+        test {
+            groovy { srcDir 'test' }
+        }
+    }
+
+    compileGroovy {
+        groovyOptions.encoding = 'UTF-8'
+        options.encoding = 'UTF-8'
+    }
+
+    compileTestGroovy {
+        groovyOptions.setFork(false)
+        groovyOptions.encoding = 'UTF-8'
+        options.encoding = 'UTF-8'
+    }
+
+    dependencies {
+        testCompile('junit:junit:4.5')
+    }
+
+    task sourceJar(type: Jar) {
+        from file('src')
+        classifier = 'sources'
+    }
+
+    artifacts {
+        archives sourceJar
+    }
+}
+
+configure(globalModule) {
+    dependencies {
+                compile("com.haulmont.thesis.app:thesis-global:$thesisVersion")
+
+    }
+
+    task enhance(type: CubaEnhancing) {
+        persistenceXml = "$globalModule.projectDir/src/persistence.xml"
+    }
+}
+
+configure(coreModule) {
+
+    configurations {
+        jdbc
+        dbscripts
+        webcontent
+    }
+
+    dependencies {
+        compile(globalModule)
+        provided(servletApi)
+        jdbc(postgres)
+        testRuntime(postgres)
+        webcontent("com.haulmont.thesis.app:thesis-core:$thesisVersion:web@zip")
+                compile("com.haulmont.thesis.app:thesis-core:$thesisVersion")
+        dbscripts("com.haulmont.thesis.app:thesis-core:$thesisVersion:db@zip")
+
+    }
+
+    task cleanConf(description: 'Cleans up conf directory') << {
+        def dir = new File(tomcatDir, '/conf/app-core')
+        if (dir.isDirectory()) {
+            ant.delete(includeemptydirs: true) {
+                fileset(dir: dir, includes: '**/*', excludes: 'local.app.properties /process/**/* app.license')
+            }
+        }
+    }
+
+    task deploy(dependsOn: [assemble, cleanConf], type: CubaDeployment) {
+        appName = 'app-core'
+        appJars('thesis-global', 'thesis-core', 'reports-global', 'reports-core', 'charts-global', 'workflow-core', 'workflow-global', 'fts-global', 'fts-core', 'cuba-global', 'cuba-core', 
+                'thesis-cryptopro-global','dealer-global', 'dealer-core', 'thesis-shared-workflow')
+    }
+
+    task createDb(dependsOn: assemble, description: 'Creates local database', type: CubaDbCreation) {
+        dbms = 'postgres'
+        host = 'localhost'
+        dbName = 'dealer'
+        dbUser = 'cuba'
+        dbPassword = 'cuba'
+    }
+
+    task updateDb(dependsOn: assemble, description: 'Updates local database', type: CubaDbUpdate) {
+        dbms = 'postgres'
+        host = 'localhost'
+        dbName = 'dealer'
+        dbUser = 'cuba'
+        dbPassword = 'cuba'
+    }
+}
+
+configure(guiModule) {
+    dependencies {
+        compile(globalModule)
+                compile("com.haulmont.thesis.app:thesis-gui:$thesisVersion")
+
+    }
+
+    task deployConf(type: Copy) {
+        from file('src')
+        include "com/company/dealer/**"
+        into "$tomcatDir/conf/app"
+    }
+}
+
+configure(webModule) {
+    configurations {
+        webcontent
+        staticContent
+        themes
+    }
+
+    dependencies {
+        provided(servletApi)
+        compile(globalModule)
+        compile(guiModule)
+        compile("com.haulmont.thesis.app:thesis-web:$thesisVersion")
+        webcontent("com.haulmont.cuba:cuba-web:$cubaVersion:web@zip")
+        webcontent("com.haulmont.workflow:workflow-web:$cubaVersion:web@zip")
+        webcontent("com.haulmont.thesis.app:thesis-web:$thesisVersion:web@zip")
+        webcontent("com.haulmont.charts:charts-web:$cubaVersion:web@zip")
+        webcontent(thesisWebToolkitGAV + [classifier: 'web', ext: 'zip'])
+        webcontent("com.haulmont.thesis.cryptopro:thesis-cryptopro-web:$thesisVersion:web@zip")
+        themes(group: 'com.haulmont.cuba', name: 'cuba-web-themes', version: cubaVersion)
+    }
+
+    task webArchive(type: Zip) {
+        from file('web')
+        classifier = 'web'
+    }
+
+    artifacts {
+        archives webArchive
+    }
+
+    task deployConf(type: Copy) {
+        from file('src')
+        include "com/company/dealer/**"
+        into "$tomcatDir/conf/app"
+    }
+
+    task cleanConf(description: 'Cleans up conf directory') << {
+        def dir = new File(tomcatDir, '/conf/app')
+        if (dir.isDirectory()) {
+            ant.delete(includeemptydirs: true) {
+                fileset(dir: dir, includes: '**/*', excludes: 'local.web-app.properties')
+            }
+        }
+    }
+
+    task deploy(dependsOn: [assemble, cleanConf], type: ThesisWebAppDeployment) {
+        appName = 'app'
+        appJars('thesis-web', 'thesis-global', 'thesis-gui', 'reports-gui', 'reports-global', 'reports-web', 'charts-gui', 'charts-global', 'charts-web', 'workflow-global', 'workflow-gui', 'workflow-web', 'fts-gui', 'fts-web', 'fts-global', 'cuba-global', 'cuba-client', 'cuba-gui', 'cuba-web', 
+        'thesis-bpmn-diagram','thesis-cryptopro-global', 'thesis-cryptopro-web','dealer-global', 'dealer-gui', 'dealer-web', 'thesis-shared-workflow')
+    }
+}
+
+task undeploy(type: Delete, dependsOn: ':dealer-web:cleanConf') {
+    delete("$tomcatDir/shared")
+    delete("$tomcatDir/webapps/app-core")
+    delete("$tomcatDir/webapps/app")
+    delete("$tomcatDir/webapps/app-portal")
+}
+
+task restart(dependsOn: ['stop', ':dealer-core:deploy', ':dealer-web:deploy', ':dealer-portal:deploy', ':dealer-mobile-rest:deploy'], description: 'Redeploys applications and restarts local Tomcat') << {
+    ant.waitfor(maxwait: 6, maxwaitunit: 'second', checkevery: 2, checkeveryunit: 'second') {
+        not {
+            socket(server: 'localhost', port: '8787')
+        }
+    }
+    start.execute()
+}
+
+task wrapper(type: Wrapper) {
+    gradleVersion = '2.13'
+}

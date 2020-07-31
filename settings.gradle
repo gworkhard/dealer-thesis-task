@@ -1,0 +1,15 @@
+/*
+ * Copyright (c) 2019 Haulmont Technology Ltd. All Rights Reserved.
+ * Haulmont Technology proprietary and confidential.
+ * Use is subject to license terms.
+ */
+
+rootProject.name = 'dealer'
+include(':dealer-global', ':dealer-core', ':dealer-gui',
+        ':dealer-web', ':dealer-portal', ':dealer-mobile', ':dealer-mobile-rest')
+project(':dealer-global').projectDir = new File(settingsDir, 'modules/global')
+project(':dealer-core').projectDir = new File(settingsDir, 'modules/core')
+project(':dealer-gui').projectDir = new File(settingsDir, 'modules/gui')
+project(':dealer-web').projectDir = new File(settingsDir, 'modules/web')
+project(':dealer-portal').projectDir = new File(settingsDir, 'modules/portal')
+project(':dealer-mobile-rest').projectDir = new File(settingsDir, 'modules/mobile-rest')

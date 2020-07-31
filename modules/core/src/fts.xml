@@ -1,0 +1,25 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<fts-config>
+    <entities>
+        <entity class="com.company.dealer.entity.CarModel">
+            <include re=".*"/>
+        </entity>
+        <entity class="com.company.dealer.entity.Car">
+            <include re=".*"/>
+            <include name="attachments.file"/>
+            <include name="assignments.attachments.file"/>
+            <exclude name="jbpmProcessId"/>
+            <exclude name="parentCard"/>
+            <exclude name="subCards"/>
+        </entity>
+        <entity class="com.company.dealer.entity.CarBuyRequest">
+            <include re=".*"/>
+            <include name="attachments.file"/>
+            <include name="assignments.attachments.file"/>
+            <exclude name="jbpmProcessId"/>
+            <exclude name="parentCard"/>
+            <exclude name="subCards"/>
+            <searchableIf>entity.versionOf == null</searchableIf>
+        </entity>
+    </entities>
+</fts-config>

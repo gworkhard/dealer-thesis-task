@@ -1,0 +1,28 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<screen-config xmlns="http://schemas.haulmont.com/cuba/screens.xsd">
+    <include file="/screens.xml"/>
+    <screen id="dealer$CarModel.edit"
+            template="com/company/dealer/web/carmodel/carmodel-edit.xml"/>
+    <screen id="dealer$CarModel.lookup"
+            template="com/company/dealer/web/carmodel/carmodel-browse.xml"/>
+    <screen id="dealer$CarModel.browse"
+            template="com/company/dealer/web/carmodel/carmodel-browse.xml"/>
+    <screen id="dealer$Car.edit"
+            template="com/company/dealer/web/car/car-edit.xml"/>
+    <screen id="dealer$Car.lookup"
+            template="com/company/dealer/web/car/car-browse.xml"/>
+    <screen id="dealer$Car.browse"
+            template="com/company/dealer/web/car/car-browse.xml"/>
+    <screen id="dealer$CarBuyRequest.templateBrowse"
+            template="com/company/dealer/web/carbuyrequest/carbuyrequest-template-browse.xml"/>
+    <screen id="dealer$CarBuyRequest.edit"
+            template="com/company/dealer/web/carbuyrequest/carbuyrequest-edit.xml"/>
+    <screen id="dealer$CarBuyRequest.lookup"
+            template="com/company/dealer/web/carbuyrequest/carbuyrequest-browse.xml"/>
+    <screen id="dealer$CarBuyRequest.browse"
+            template="com/company/dealer/web/carbuyrequest/carbuyrequest-browse.xml"/>
+    <screen id="df$Individual.browse"
+            template="com/company/dealer/web/individualbrowse/ext-individual-browse.xml"/>
+    <screen id="df$Company.browse"
+            template="com/company/dealer/web/companybrowse/ext-company-browse.xml"/>
+</screen-config>

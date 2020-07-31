@@ -1,0 +1,33 @@
+<!--
+  ~ Copyright (c) ${YEAR} ${PACKAGE_NAME}
+  -->
+
+<folders xmlns="http://schemas.haulmont.com/thesis/4.0/folders.xsd">
+
+    <!-- Tasks folders-->
+    <folder>
+        <name>AppFolder_doc.newCarBuyRequest</name>
+        <sortOrder>1</sortOrder>
+        <entity>dealer$CarBuyRequest</entity>
+        <parent>AppFolder_doc.docs</parent>
+        <roles>
+            <role>Administrators</role>
+            <role>Manager</role>
+        </roles>
+        <quantityScript>com/company/dealer/core/appfolders/NewCarBuyRequestCount.groovy</quantityScript>
+        <filterQuery>{E}.proc is null and {E}.creator.id = :session$userId</filterQuery>
+    </folder>
+    
+    <folder>
+        <name>AppFolder_doc.appointedCarBuyRequest</name>
+        <sortOrder>2</sortOrder>
+        <parent>AppFolder_doc.docs</parent>
+        <roles>
+            <role>Administrators</role>
+            <role>Manager</role>
+        </roles>
+        <quantityScript>com/company/dealer/core/appfolders/AppointedCarBuyRequestCount.groovy</quantityScript>
+        <filterQuery>:session$userId in {E}.currentActorsIds</filterQuery>
+    </folder>
+
+</folders>
