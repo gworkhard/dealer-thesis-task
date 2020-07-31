@@ -274,30 +274,30 @@ public class ExtDeployer extends AbstractDeployer implements ExtDeployerMBean {
     @Override
     @Authenticated
     public String deployApprovalProcess() {
-        String result = deployProcesses(Collections.singletonList("Утверждение заявки"));
+        String result = deployProcesses(Collections.singletonList("ApproveCarBuyRequest"));
         persistence.createTransaction().execute(new Transaction.Callable<Object>() {
             @Override
             public Object call(EntityManager em) {
                 Proc proc = (Proc) em.createQuery("select p from wf$Proc p where p.name = :name")
-                        .setParameter("name", "Утверждение заявки").setView(Proc.class,
+                        .setParameter("name", "ApproveCarBuyRequest").setView(Proc.class,
                                 "edit").getFirstResult();
                 if (proc != null) {
-                    Role roleInitiator = (Role) em.createQuery("select r from sec$Role r where" +
-                            " r.name='Initiator'").getFirstResult();
-                    Role roleManager = (Role) em.createQuery("select r from sec$Role r where" +
+                    Role roleInitiator = (Role) em.createQuery("select r from sec$Role r where " +
+                            " r.name='doc_initiator'").getFirstResult();
+                    Role roleManager = (Role) em.createQuery("select r from sec$Role r where " +
                             " r.name='Manager'").getFirstResult();
                     Role roleBankOperator = (Role) em.createQuery("select r from sec$Role r where " +
                             " r.name='BankOperator'").getFirstResult();
-                    Role roleMaster = (Role) em.createQuery("select r from sec$Role r where" +
+                    Role roleMaster = (Role) em.createQuery("select r from sec$Role r where " +
                             " r.name='Master'").getFirstResult();
                     for (ProcRole procRole : proc.getRoles()) {
                         switch (procRole.getCode()) {
-                            case "Initiator":
-                                procRole.setRole(roleInitiator); //todo role Initiator does not exists, should I do anything here??
+                            case "CARD_CREATOR":
+                                procRole.setRole(roleInitiator);
                                 procRole.setSortOrder(0);
                                 TsDefaultProcActor defaultProcActor = (TsDefaultProcActor) em
                                         .createQuery("select dpa from ts$DefaultProcActor dpa where" +
-                                                "dpa.strategyId =:strategy and dpa.procRole.id = :procRole " )
+                                                " dpa.strategyId =:strategy and dpa.procRole.id = :procRole " )
                                     .setParameter("strategy", CardAuthorProcessActorStrategy.NAME)
                                     .setParameter("procRole", procRole.getId()).getFirstResult();
                                 if (defaultProcActor == null) {
@@ -331,16 +331,3 @@ public class ExtDeployer extends AbstractDeployer implements ExtDeployerMBean {
     }
 }
 
-//    persistence.createTransaction().execute(new Transaction.Callable<Object>() {
-//        @Override
-//        public Object call(EntityManager em) {
-//            Proc proc = (Proc) em.createQuery("select p from wf$Proc p where p.code = :code")
-//                    .setParameter("code", Gov74Constants.SendingToLotusProcess.CODE).setView(Proc.class, "edit").getFirstResult();
-//            Role roleSecretary = (Role) em.createQuery("select r from sec$Role r where r.name='doc_secretary'").getFirstResult();
-//            Role roleExecutor = (Role) em.createQuery("select r from sec$Role r where r.name='resolutionExecutor'").getFirstResult();
-//            if (proc != null) {
-//                proc.setCardTypes(",gov$CardResolution,");
-//                proc.setName(messages.getMessage(getClass(), Gov74Constants.SendingToLotusProcess.CODE));
-//                ((TsProc) proc).setAvailableForMobileClient(true);
-//
-//

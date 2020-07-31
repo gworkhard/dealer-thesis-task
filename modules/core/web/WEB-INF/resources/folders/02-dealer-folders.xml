@@ -21,13 +21,16 @@
     <folder>
         <name>AppFolder_doc.appointedCarBuyRequest</name>
         <sortOrder>2</sortOrder>
+        <entity>dealer$CarBuyRequest</entity>
         <parent>AppFolder_doc.docs</parent>
         <roles>
             <role>Administrators</role>
             <role>Manager</role>
+            <role>BankOperator</role>
+            <role>Master</role>
         </roles>
         <quantityScript>com/company/dealer/core/appfolders/AppointedCarBuyRequestCount.groovy</quantityScript>
-        <filterQuery>:session$userId in {E}.currentActorsIds</filterQuery>
+        <filterQuery>{E}.id in (select a.card.id from wf$Assignment a where a.user.id = :session$userId and a.finished is null)</filterQuery>
     </folder>
 
 </folders>
